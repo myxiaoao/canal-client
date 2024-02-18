@@ -1,0 +1,27 @@
+{
+  "name": "cooper/canal-client",
+  "description": "connect canal server via php client.",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "cooper",
+      "email": "myxiaoao@gmail.com"
+    }
+  ],
+  "minimum-stability": "dev",
+  "require": {
+    "php": ">=8.0",
+    "ext-sockets": "*",
+    "clue/socket-raw": "^1.4",
+    "google/protobuf": "^3.8",
+    "swoole/ide-helper": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "Com\\Alibaba\\Otter\\Canal\\Protocol\\": "protocol/Com/Alibaba/Otter/Canal/Protocol/",
+      "GPBMetadata\\": "protocol/GPBMetadata/",
+      "Cooper\\CanalClient\\": "src/"
+    }
+  }
+}
