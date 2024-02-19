@@ -213,12 +213,12 @@ abstract class BaseCanalConnector implements ICanalConnector
     }
 
     /**
-     * @param int $clientId
+     * @param string $clientId
      * @param string $destination
      * @param string $filter
      * @throws Exception
      */
-    public function subscribe(int $clientId = 1001, string $destination = "example", string $filter = ".*\\..*"): void
+    public function subscribe(string $clientId = '1001', string $destination = "example", string $filter = ".*\\..*"): void
     {
         $this->clientId = $clientId;
         $this->destination = $destination;
