@@ -42,8 +42,8 @@ class Fmt
         ), PHP_EOL, PHP_EOL;
 
         $sql = $rowChange->getSql();
-        $sql = (! empty($sql)) ? sprintf('%s;', $sql) : '';
-        echo $sql, PHP_EOL;
+        $sql = (! empty($sql)) ? sprintf('%s;', $sql) : 'row 模式，针对 DML 默认没有 SQL 语句';
+        echo $sql, PHP_EOL, PHP_EOL;
 
         /** @var RowData $rowData */
         foreach ($rowChange->getRowDatas() as $rowData) {
@@ -71,9 +71,9 @@ class Fmt
      */
     private static function ptColumn(mixed $columns): void
     {
-        foreach ($columns as $column) {
-            echo sprintf(
-                "%s: %s, update= %s",
+        foreach ($columns as $key => $column) {
+            echo '#' . $key + 1, sprintf(
+                " %s: %s, update=%s",
                 $column->getName(),
                 $column->getValue(),
                 var_export($column->getUpdated(), true)
