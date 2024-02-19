@@ -41,7 +41,9 @@ class Fmt
             $header->getEventType()
         ), PHP_EOL, PHP_EOL;
 
-        // echo $rowChange->getSql(), PHP_EOL;
+        $sql = $rowChange->getSql();
+        $sql = (! empty($sql)) ? sprintf('%s;', $sql) : '';
+        echo $sql, PHP_EOL;
 
         /** @var RowData $rowData */
         foreach ($rowChange->getRowDatas() as $rowData) {

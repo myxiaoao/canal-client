@@ -43,7 +43,7 @@ class Get extends \Google\Protobuf\Internal\Message
      *     @type int|string $timeout
      *           默认-1时代表不控制
      *     @type int $unit
-     *           数字类型，0:纳秒,1:毫秒,2:微秒,3:秒,4:分钟,5:小时,6:天
+     *           数字类型，0:纳秒,1:微秒,2:毫秒,3:秒,4:分钟,5:小时,6:天
      *     @type bool $auto_ack
      *           是否自动ack
      * }
@@ -151,7 +151,7 @@ class Get extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * 数字类型，0:纳秒,1:毫秒,2:微秒,3:秒,4:分钟,5:小时,6:天
+     * 数字类型，0:纳秒,1:微秒,2:毫秒,3:秒,4:分钟,5:小时,6:天
      *
      * Generated from protobuf field <code>int32 unit = 5;</code>
      * @return int
@@ -167,7 +167,7 @@ class Get extends \Google\Protobuf\Internal\Message
     }
 
     /**
-     * 数字类型，0:纳秒,1:毫秒,2:微秒,3:秒,4:分钟,5:小时,6:天
+     * 数字类型，0:纳秒,1:微秒,2:毫秒,3:秒,4:分钟,5:小时,6:天
      *
      * Generated from protobuf field <code>int32 unit = 5;</code>
      * @param int $var
