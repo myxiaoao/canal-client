@@ -17,6 +17,8 @@ class Fmt
      */
     public static function println(Entry $entry): void
     {
+        echo $entry->getEntryType(), PHP_EOL;
+
         switch ($entry->getEntryType()) {
             case EntryType::TRANSACTIONBEGIN:
             case EntryType::TRANSACTIONEND:
