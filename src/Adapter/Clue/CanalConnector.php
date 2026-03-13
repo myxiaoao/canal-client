@@ -9,7 +9,7 @@ use Socket\Raw\Socket;
 class CanalConnector extends BaseCanalConnector
 {
     /** @var Socket */
-    protected mixed $client;
+    protected Socket $client;
 
     /**
      * @param string $host

@@ -1,5 +1,8 @@
-composer.lock
-.idea/
-test/
-vendor/
-.php_cs.cache
+/vendor/
+/composer.lock
+/.idea/
+/.php_cs.cache
+/.phpunit.result.cache
+.DS_Store
+*.swp
+*.swo

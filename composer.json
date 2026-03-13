@@ -1,27 +1,52 @@
 {
   "name": "cooper/canal-client",
-  "description": "connect canal server via php client.",
+  "description": "A PHP client for Alibaba Canal, supporting native socket, Swoole, and Clue socket adapters.",
   "type": "library",
   "license": "MIT",
+  "keywords": [
+    "canal",
+    "mysql",
+    "binlog",
+    "database",
+    "replication",
+    "swoole"
+  ],
   "authors": [
     {
       "name": "cooper",
       "email": "myxiaoao@gmail.com"
     }
   ],
-  "minimum-stability": "dev",
   "require": {
     "php": ">=8.0",
     "ext-sockets": "*",
+    "google/protobuf": "^3.8"
+  },
+  "require-dev": {
     "clue/socket-raw": "^1.4",
-    "google/protobuf": "^3.8",
-    "swoole/ide-helper": "^5.0"
+    "swoole/ide-helper": "^5.0",
+    "phpunit/phpunit": "^10.0|^11.0"
+  },
+  "suggest": {
+    "clue/socket-raw": "Required for using the Clue socket adapter",
+    "ext-swoole": "Required for using the Swoole adapter"
   },
   "autoload": {
     "psr-4": {
+      "Cooper\\CanalClient\\": "src/",
       "Com\\Alibaba\\Otter\\Canal\\Protocol\\": "protocol/Com/Alibaba/Otter/Canal/Protocol/",
-      "GPBMetadata\\": "protocol/GPBMetadata/",
-      "Cooper\\CanalClient\\": "src/"
+      "GPBMetadata\\": "protocol/GPBMetadata/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Cooper\\CanalClient\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit"
+  },
+  "config": {
+    "sort-packages": true
   }
 }

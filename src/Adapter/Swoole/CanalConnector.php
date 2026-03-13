@@ -9,7 +9,7 @@ use Swoole\Client;
 class CanalConnector extends BaseCanalConnector
 {
     /** @var Client */
-    protected mixed $client;
+    protected Client $client;
 
     /**
      * @param string $host

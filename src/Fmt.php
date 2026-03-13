@@ -7,49 +7,49 @@ use Com\Alibaba\Otter\Canal\Protocol\EntryType;
 use Com\Alibaba\Otter\Canal\Protocol\EventType;
 use Com\Alibaba\Otter\Canal\Protocol\RowChange;
 use Com\Alibaba\Otter\Canal\Protocol\RowData;
-use Exception;
 
 class Fmt
 {
     /**
      * @param Entry $entry
-     * @throws Exception
+     * @return void
      */
     public static function println(Entry $entry): void
     {
         echo $entry->getEntryType(), PHP_EOL;
 
-        switch ($entry->getEntryType()) {
-            case EntryType::TRANSACTIONBEGIN:
-            case EntryType::TRANSACTIONEND:
-                return;
+        $entryType = $entry->getEntryType();
+        if ($entryType === EntryType::TRANSACTIONBEGIN || $entryType === EntryType::TRANSACTIONEND) {
+            return;
         }
 
         $rowChange = new RowChange();
         $rowChange->mergeFromString($entry->getStoreValue());
-        $evenType = $rowChange->getEventType();
+        $eventType = $rowChange->getEventType();
         $header = $entry->getHeader();
         if ($header === null) {
             return;
         }
 
-        echo sprintf(
-            "# server %s, binlog[%s: %d], name[%s, %s], eventType: %s",
+        printf(
+            "# server %s, binlog[%s: %d], name[%s, %s], eventType: %s%s%s",
             $header->getServerId(),
             $header->getLogfileName(),
             $header->getLogfileOffset(),
             $header->getSchemaName(),
             $header->getTableName(),
-            $header->getEventType()
-        ), PHP_EOL, PHP_EOL;
+            $header->getEventType(),
+            PHP_EOL,
+            PHP_EOL
+        );
 
         $sql = $rowChange->getSql();
-        $sql = (! empty($sql)) ? sprintf('%s;', $sql) : 'row 模式，针对 DML 默认没有 SQL 语句';
-        echo $sql, PHP_EOL, PHP_EOL;
+        echo !empty($sql) ? "{$sql};" : 'row 模式，针对 DML 默认没有 SQL 语句';
+        echo PHP_EOL, PHP_EOL;
 
         /** @var RowData $rowData */
         foreach ($rowChange->getRowDatas() as $rowData) {
-            switch ($evenType) {
+            switch ($eventType) {
                 case EventType::DELETE:
                     self::ptColumn($rowData->getBeforeColumns());
                     break;
@@ -74,12 +74,14 @@ class Fmt
     private static function ptColumn(mixed $columns): void
     {
         foreach ($columns as $key => $column) {
-            echo '#' . $key + 1, sprintf(
-                " %s: %s, update=%s",
+            printf(
+                "#%d %s: %s, update=%s%s",
+                $key + 1,
                 $column->getName(),
                 $column->getValue(),
-                var_export($column->getUpdated(), true)
-            ), PHP_EOL;
+                var_export($column->getUpdated(), true),
+                PHP_EOL
+            );
         }
     }
 }

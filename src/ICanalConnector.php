@@ -4,21 +4,27 @@ namespace Cooper\CanalClient;
 
 interface ICanalConnector
 {
-    public function connect();
+    public function connect(
+        string $host = "127.0.0.1",
+        int $port = 11111,
+        string $user = "",
+        string $password = "",
+        int $connectionTimeout = 10,
+        int $readTimeout = 30,
+        int $writeTimeout = 30
+    ): void;
 
-    public function disConnect();
+    public function disConnect(): void;
 
-    public function checkValid();
+    public function subscribe(string $clientId = '1001', string $destination = "example", string $filter = ".*\\..*"): void;
 
-    public function subscribe();
+    public function unSubscribe(): void;
 
-    public function unSubscribe();
+    public function get(int $size = 100): Message;
 
-    public function get();
+    public function getWithoutAck(int $batchSize = 10, int $timeout = -1, int $unit = -1): Message;
 
-    public function getWithoutAck();
+    public function ack(int $messageId = 0): void;
 
-    public function ack();
-
-    public function rollback();
+    public function rollback(int $batchId = 0): void;
 }

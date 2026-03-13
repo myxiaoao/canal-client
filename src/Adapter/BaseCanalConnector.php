@@ -20,18 +20,12 @@ use RuntimeException;
 
 abstract class BaseCanalConnector implements ICanalConnector
 {
-    /** @var mixed */
     protected mixed $client;
-    /** @var int */
     protected int $readTimeout;
-    /** @var int */
     protected int $writeTimeout;
-    /** @var int */
     protected int $packetLen = 4;
-    /** @var string */
     protected string $destination;
-    /** @var int */
-    protected int $clientId;
+    protected string $clientId;
 
     /**
      * @throws Exception
@@ -103,6 +97,10 @@ abstract class BaseCanalConnector implements ICanalConnector
         $packet = new Packet();
         $packet->mergeFromString($data);
 
+        if ($packet->getType() !== PacketType::HANDSHAKE) {
+            throw new RuntimeException("connect error.");
+        }
+
         // 密码需要通过握手包返回的 seed 进行哈希
         if ($user && $password) {
             $handShake = new Handshake();
@@ -110,10 +108,6 @@ abstract class BaseCanalConnector implements ICanalConnector
             $password = bin2hex($this->scramble411($password, $handShake->getSeeds()));
         }
         $this->checkValid($user, $password);
-
-        if ($packet->getType() !== PacketType::HANDSHAKE) {
-            throw new RuntimeException("connect error.");
-        }
     }
 
     /**
@@ -142,7 +136,7 @@ abstract class BaseCanalConnector implements ICanalConnector
      * @param string $seed
      * @return false|string
      */
-    public function scramble411(string $password, string $seed): bool|string
+    protected function scramble411(string $password, string $seed): bool|string
     {
         $pwd1 = sha1($password, true);
         $pwd2 = sha1($pwd1, true);
@@ -161,7 +155,7 @@ abstract class BaseCanalConnector implements ICanalConnector
      * @param string $string
      * @return array|false
      */
-    public function stringToBytes(string $string): bool|array
+    protected function stringToBytes(string $string): bool|array
     {
         return unpack("C*", $string);
     }
@@ -170,7 +164,7 @@ abstract class BaseCanalConnector implements ICanalConnector
      * @param array $bytes
      * @return false|string
      */
-    public function bytesToString(array $bytes): bool|string
+    protected function bytesToString(array $bytes): bool|string
     {
         return pack("C*", ...$bytes);
     }
@@ -180,7 +174,7 @@ abstract class BaseCanalConnector implements ICanalConnector
      * @param string $password
      * @throws Exception
      */
-    public function checkValid(string $username = "", string $password = ""): void
+    protected function checkValid(string $username = "", string $password = ""): void
     {
         $ca = new ClientAuth();
         $ca->setUsername($username);
@@ -275,7 +269,6 @@ abstract class BaseCanalConnector implements ICanalConnector
 
         $this->ack($message->getId());
 
-
         return $message;
     }
 
@@ -316,7 +309,7 @@ abstract class BaseCanalConnector implements ICanalConnector
                 if ($messages->getBatchId() > 0) {
                     $message->setId($messages->getBatchId());
 
-                    foreach ($messages->getMessages()->getIterator() as $v) {
+                    foreach ($messages->getMessages() as $v) {
                         $entry = new Entry();
                         $entry->mergeFromString($v);
                         $message->addEntries($entry);
@@ -346,9 +339,8 @@ abstract class BaseCanalConnector implements ICanalConnector
 
     /**
      * @param int $messageId
-     * @return void
      */
-    public function ack(mixed $messageId = 0): void
+    public function ack(int $messageId = 0): void
     {
         if ($messageId) {
             $clientAck = new ClientAck();

@@ -116,10 +116,9 @@ class TcpClient
     }
 
     /**
-     * @param $connectTimeout
-     *            Timeout in seconds.
+     * @param int $connectTimeout Timeout in seconds.
      */
-    public function setConnectTimeout($connectTimeout): void
+    public function setConnectTimeout(int $connectTimeout): void
     {
         $this->connectTimeout = $connectTimeout;
     }
@@ -171,8 +170,10 @@ class TcpClient
 
         // Connect failed?
         if ($this->handle_ === false) {
-            $error = 'Socket: Could not connect to ' . $this->host_ . ':' . $this->port_ . ' (' . $errstr . ' [' . $errno . '])';
-            throw new RuntimeException($error, 10);
+            throw new RuntimeException(
+                sprintf('Socket: Could not connect to %s:%d (%s [%d])', $this->host_, $this->port_, $errstr, $errno),
+                10
+            );
         }
 
         stream_set_timeout($this->handle_, 0, $this->sendTimeout);
@@ -204,10 +205,10 @@ class TcpClient
      * Uses stream get contents to do the reading
      *
      * @param int $len How many bytes
-     * @return string|null Binary data
+     * @return string Binary data
      * @throws RuntimeException
      */
-    public function read(int $len): ?string
+    public function read(int $len): string
     {
         if ($this->sendTimeoutSet_) {
             stream_set_timeout($this->handle_, 0, $this->recvTimeout * 1000000);
@@ -220,26 +221,15 @@ class TcpClient
         while (true) {
             $buf = @fread($this->handle_, $len);
             if ($buf === false || $buf === '') {
-                $md = stream_get_meta_data($this->handle_);
-                if ($md['timed_out']) {
-                    throw new RuntimeException(
-                        'TSocket: timed out reading ' . $len . ' bytes from ' . $this->host_ . ':' . $this->port_
-                    );
-                }
-
+                $this->throwIfTimedOut($len);
                 throw new RuntimeException(
-                    'TSocket: Could not read ' . $len . ' bytes from ' . $this->host_ . ':' . $this->port_
+                    sprintf('TSocket: Could not read %d bytes from %s:%d', $len, $this->host_, $this->port_)
                 );
             }
 
-            if (($sz = strlen($buf)) < $len) {
-                $md = stream_get_meta_data($this->handle_);
-                if ($md['timed_out']) {
-                    throw new RuntimeException(
-                        'TSocket: timed out reading ' . $len . ' bytes from ' . $this->host_ . ':' . $this->port_
-                    );
-                }
-
+            $sz = strlen($buf);
+            if ($sz < $len) {
+                $this->throwIfTimedOut($len);
                 $pre .= $buf;
                 $len -= $sz;
             } else {
@@ -249,10 +239,10 @@ class TcpClient
     }
 
     /**
-     * @param bool|string $buf Binary data
+     * @param string $buf Binary data
      * @throws RuntimeException
      */
-    public function write(bool|string $buf): void
+    public function write(string $buf): void
     {
         if (! $this->sendTimeoutSet_) {
             stream_set_timeout($this->handle_, 0, $this->sendTimeout);
@@ -261,17 +251,9 @@ class TcpClient
         while ($buf !== '') {
             $got = @fwrite($this->handle_, $buf);
             if ($got === 0 || $got === false) {
-                $md = stream_get_meta_data($this->handle_);
-                if ($md['timed_out']) {
-                    throw new RuntimeException(
-                        'TSocket: timed out writing ' . strlen(
-                            $buf
-                        ) . ' bytes from ' . $this->host_ . ':' . $this->port_
-                    );
-                }
-
+                $this->throwIfTimedOut(strlen($buf), true);
                 throw new RuntimeException(
-                    'TSocket: Could not write ' . strlen($buf) . ' bytes ' . $this->host_ . ':' . $this->port_
+                    sprintf('TSocket: Could not write %d bytes to %s:%d', strlen($buf), $this->host_, $this->port_)
                 );
             }
             $buf = substr($buf, $got);
@@ -286,7 +268,25 @@ class TcpClient
     {
         $ret = fflush($this->handle_);
         if ($ret === false) {
-            throw new RuntimeException('TSocket: Could not flush: ' . $this->host_ . ':' . $this->port_);
+            throw new RuntimeException(
+                sprintf('TSocket: Could not flush: %s:%d', $this->host_, $this->port_)
+            );
+        }
+    }
+
+    /**
+     * @param int $len
+     * @param bool $writing
+     * @throws RuntimeException
+     */
+    private function throwIfTimedOut(int $len, bool $writing = false): void
+    {
+        $md = stream_get_meta_data($this->handle_);
+        if ($md['timed_out']) {
+            $action = $writing ? 'writing' : 'reading';
+            throw new RuntimeException(
+                sprintf('TSocket: timed out %s %d bytes from %s:%d', $action, $len, $this->host_, $this->port_)
+            );
         }
     }
 }

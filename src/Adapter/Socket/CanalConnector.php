@@ -8,7 +8,7 @@ use RuntimeException;
 class CanalConnector extends BaseCanalConnector
 {
     /** @var TcpClient */
-    protected mixed $client;
+    protected TcpClient $client;
 
     /**
      * @param string $host
@@ -46,6 +46,7 @@ class CanalConnector extends BaseCanalConnector
 
     /**
      * @param string $data
+     * @return void
      * @throws RuntimeException
      */
     protected function writeWithHeader(string $data): void
